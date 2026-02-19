@@ -1,0 +1,7 @@
+add_subdirectory(example_1)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/service-example-1)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/multiple_write_example)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/multithread_example)
+add_subdirectory(reconnect-example)
+add_subdirectory(enabled_slave_example)
+add_subdirectory(logger_addition)
