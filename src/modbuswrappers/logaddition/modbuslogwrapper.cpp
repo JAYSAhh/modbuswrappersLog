@@ -29,11 +29,12 @@ struct ModbusLogWrapper::ModbusLogWrapperPrivate{
   ErrorCode disconnect();
   void checkConnection();
 
-  ModbusLogWrapperPrivate(const std::string& ip_, int port_, int modbus_id_, ModbusLogger& logger): ip(ip_), port(port_), modbus_id(modbus_id_), modbus_logger(logger){};
+  ModbusLogWrapperPrivate(const std::string& ip_, int port_, ModbusLogger& logger): ip(ip_), port(port_), modbus_logger(logger){};
 
 };
 
-ModbusLogWrapper::ModbusLogWrapper(const std::string &ip, int port, int modbus_id, ModbusLogger &logger): ModbusWrapper(), _impl(new ModbusLogWrapperPrivate(ip, port, modbus_id, logger)) {
+ModbusLogWrapper::ModbusLogWrapper(const std::string &ip, int port, ModbusLogger &logger): ModbusWrapper(), _impl(new ModbusLogWrapperPrivate(ip, port, logger)) {
+  _impl->modbus_logger = logger;
 }
 
 ModbusLogWrapper::~ModbusLogWrapper() {

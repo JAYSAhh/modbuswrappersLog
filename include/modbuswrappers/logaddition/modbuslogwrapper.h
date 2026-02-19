@@ -8,7 +8,7 @@
 
 class MODBUSWRAPPERS_EXPORT ModbusLogWrapper: public ModbusWrapper {
     public:
-        explicit ModbusLogWrapper(const std::string &ip, int port, int modbus_id, ModbusLogger &logger );
+        explicit ModbusLogWrapper(const std::string &ip, int port, ModbusLogger &logger );
         ~ModbusLogWrapper();
 
         ErrorCode changeAddress(const std::string &ip, int port, int modbus_id = 1, bool reconnect = true) override;

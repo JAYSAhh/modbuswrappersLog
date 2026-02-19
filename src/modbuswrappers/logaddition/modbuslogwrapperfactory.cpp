@@ -36,9 +36,9 @@ std::shared_ptr<ModbusWrapper> ModbusLogWrapperFactory::createBaseModbusWrapper(
   return result;
 }
 
-std::shared_ptr<ModbusWrapper> ModbusLogWrapperFactory::createBaseModbusWrapper(const std::string &ip,int port,int modbus_id,ModbusLogger &logger)
+std::shared_ptr<ModbusWrapper> ModbusLogWrapperFactory::createBaseModbusWrapper(const std::string &ip,int port,ModbusLogger &logger)
 {
 
-  auto result = std::make_shared<ModbusLogWrapper>(ip,port,modbus_id,logger);
+  auto result = std::make_shared<ModbusLogWrapper>(ip,port,logger);
   return result;
 }

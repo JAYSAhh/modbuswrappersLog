@@ -19,7 +19,7 @@ class MODBUSWRAPPERS_EXPORT ModbusLogWrapperFactory: public ModbusWrapperFactory
                                                  int input_regs_count) override;
 
     std::shared_ptr<ModbusWrapper> createBaseModbusWrapper(const std::string &ip, int port) override;
-    std::shared_ptr<ModbusWrapper> createBaseModbusWrapper(const std::string &ip,int port,int modbus_id,ModbusLogger &logger);
+    std::shared_ptr<ModbusWrapper> createBaseModbusWrapper(const std::string &ip,int port,ModbusLogger &logger);
 
   private:
     struct ModbusLogWrapperFactoryPrivate;
