@@ -19,7 +19,7 @@ int main() {
     auto logger = ModbusLogger(path);
     auto base_factory = std::make_shared<ModbusWrapperFactory>();
     auto factory = ModbusLogWrapperFactory(base_factory);
-    auto client = factory.createBaseModbusWrapper("10.10.110.202", 4001, logger);
+    auto client = factory.createModbusWrapper("10.10.110.202", 4001, logger);
 
 
 

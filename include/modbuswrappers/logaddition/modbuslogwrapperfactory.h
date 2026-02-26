@@ -12,6 +12,10 @@ class MODBUSWRAPPERS_EXPORT ModbusLogWrapperFactory: public ModbusWrapperFactory
 
     std::shared_ptr<ModbusWrapper> createModbusWrapper(const std::string &ip,
                                                  int port,
+                                                 ModbusLogger logger);
+
+    std::shared_ptr<ModbusWrapper> createModbusWrapper(const std::string &ip,
+                                                 int port,
                                                  int modbus_id,
                                                  int start_holding_reg_num,
                                                  int holding_regs_count,

@@ -62,6 +62,4 @@ class MODBUSWRAPPERS_EXPORT ModbusLogWrapper: public ModbusWrapper {
 };
 
 
-
-
 #endif //MODBUSWRAPPERS_MODBUSLOGWRAPPER_H

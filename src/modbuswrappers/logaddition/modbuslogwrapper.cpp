@@ -136,7 +136,7 @@ ErrorCode ModbusLogWrapper::readHoldingRegister(int reg_num, uint16_t &value, in
   if (_impl->current_state != nullptr) {
     result = _impl->current_state->readHoldingRegister(reg_num, value, modbus_id, priority);
   }
-  _impl->modbus_logger.Log(_impl->current_state_key, Operation::READ_HOLDING_REGISTERS, result);
+  _impl->modbus_logger.Log(_impl->current_state_key, Operation::READ_HOLDING_REGISTERS, result , "ReadHoldingRegister " + std::to_string(reg_num) + " " + std::to_string(value) + " " + std::to_string(modbus_id));
 
   return result;
 }
@@ -153,7 +153,10 @@ ErrorCode ModbusLogWrapper::readHoldingRegisters(int reg_num,
   if (_impl->current_state != nullptr) {
     result = _impl->current_state->readHoldingRegisters(reg_num, reg_count, values, modbus_id, priority);
   }
-  _impl->modbus_logger.Log(_impl->current_state_key, Operation::READ_HOLDING_REGISTERS, result);
+  for (auto value : values)
+  {
+    _impl->modbus_logger.Log(_impl->current_state_key, Operation::READ_HOLDING_REGISTERS, result , "ReadHoldingRegisters " + std::to_string(reg_num) + " " + std::to_string(value) + " " + std::to_string(modbus_id));
+  }
   return result;
 }
 
@@ -166,7 +169,8 @@ ErrorCode ModbusLogWrapper::writeHoldingRegister(int reg_num, uint16_t value, in
   if (_impl->current_state != nullptr) {
     result = _impl->current_state->writeHoldingRegister(reg_num, value, modbus_id, priority);
   }
-  _impl->modbus_logger.Log(_impl->current_state_key, Operation::WRITE_HOLDING_REGISTERS, result);
+  _impl->modbus_logger.Log(_impl->current_state_key, Operation::READ_HOLDING_REGISTERS, result , "WriteHoldingRegister " + std::to_string(reg_num) + " " + std::to_string(value) + " " + std::to_string(modbus_id));
+
   return result;
 }
 
@@ -179,7 +183,10 @@ ErrorCode ModbusLogWrapper::writeHoldingRegisters(int reg_num, std::vector<uint1
   if (_impl->current_state != nullptr) {
     result = _impl->current_state->writeHoldingRegisters(reg_num, value, modbus_id, priority);
   }
-  _impl->modbus_logger.Log(_impl->current_state_key, Operation::WRITE_HOLDING_REGISTERS, result);
+  for (auto single_value : value)
+  {
+    _impl->modbus_logger.Log(_impl->current_state_key, Operation::READ_HOLDING_REGISTERS, result , "ReadHoldingRegisters " + std::to_string(reg_num) + " " + std::to_string(single_value) + " " + std::to_string(modbus_id));
+  }
   return result;
 }
 
@@ -192,7 +199,8 @@ ErrorCode ModbusLogWrapper::readInputRegister(int reg_num, uint16_t &value, int 
   if (_impl->current_state != nullptr) {
     result = _impl->current_state->readInputRegister(reg_num, value, modbus_id, priority);
   }
-  _impl->modbus_logger.Log(_impl->current_state_key, Operation::WRITE_HOLDING_REGISTERS, result);
+  _impl->modbus_logger.Log(_impl->current_state_key, Operation::READ_HOLDING_REGISTERS, result , "ReadInputRegister " + std::to_string(reg_num) + " " + std::to_string(value) + " " + std::to_string(modbus_id));
+
   return result;
 }
 
@@ -211,7 +219,10 @@ ErrorCode ModbusLogWrapper::readInputRegisters(int reg_num,
     std::cout << "CURRENT STATE IS " << _impl->current_state_key << std::endl;
     result = _impl->current_state->readInputRegisters(reg_num, reg_count, values, modbus_id, priority);
   }
-  _impl->modbus_logger.Log(_impl->current_state_key, Operation::WRITE_HOLDING_REGISTERS, result);
+  for (auto value : values)
+  {
+    _impl->modbus_logger.Log(_impl->current_state_key, Operation::READ_HOLDING_REGISTERS, result , "ReadHoldingRegisters " + std::to_string(reg_num) + " " + std::to_string(value) + " " + std::to_string(modbus_id));
+  }
   return result;
 }
 

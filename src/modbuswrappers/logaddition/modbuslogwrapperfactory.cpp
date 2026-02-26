@@ -19,6 +19,14 @@ ModbusLogWrapperFactory::~ModbusLogWrapperFactory()
   delete _impl;
 }
 
+std::shared_ptr<ModbusWrapper> createModbusWrapper(const std::string &ip,
+                                             int port,
+                                             ModbusLogger logger){
+
+  std::shared_ptr<ModbusWrapper> result = std::make_shared<ModbusLogWrapper>(ip,port,logger);
+  return result;
+}
+
 std::shared_ptr<ModbusWrapper> ModbusLogWrapperFactory::createModbusWrapper(const std::string &ip,
                                                                                  int port,
                                                                                  int modbus_id,
@@ -26,19 +34,18 @@ std::shared_ptr<ModbusWrapper> ModbusLogWrapperFactory::createModbusWrapper(cons
                                                                                  int holding_regs_count,
                                                                                    int start_input_reg_num,
                                                                                  int input_regs_count) {
-  std::shared_ptr<ModbusWrapper> result = nullptr;
+  std::shared_ptr<ModbusWrapper> result =  nullptr;
   std::cerr << "Cannot create modbus wrapper of MODBUS_LOG_WRAPPER decorator without MODBUS_LOGGER " << std::endl;
   return result;
 }
 std::shared_ptr<ModbusWrapper> ModbusLogWrapperFactory::createBaseModbusWrapper(const std::string &ip, int port) {
   std::shared_ptr<ModbusWrapper> result = nullptr;
-  std::cerr << "Cannot create modbus wrapper of MODBUS_LOG_WRAPPER decorator without MODBUS ID and MODBUS_LOGGER " << std::endl;
   return result;
 }
 
 std::shared_ptr<ModbusWrapper> ModbusLogWrapperFactory::createBaseModbusWrapper(const std::string &ip,int port,ModbusLogger &logger)
 {
 
-  auto result = std::make_shared<ModbusLogWrapper>(ip,port,logger);
+  std::shared_ptr<ModbusWrapper> result = nullptr;
   return result;
 }
