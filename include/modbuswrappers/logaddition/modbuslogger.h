@@ -38,12 +38,12 @@ enum Operation {
 
 class MODBUSWRAPPERS_EXPORT ModbusLogger {
     public:
-        explicit ModbusLogger(std::string fileName);
+        ModbusLogger(std::string fileName);
         ~ModbusLogger();
-        void Log(DeviceState &deviceState, Operation operation,ErrorCode errorCode, std::string message);
-        void Log(DeviceState &deviceState, Operation operation,ErrorCode errorCode);
-        void WriteToStream(std::string &logline);
-        void CloseStream();
+        void log(DeviceState &deviceState, Operation operation,ErrorCode errorCode, std::string message);
+        void log(DeviceState &deviceState, Operation operation,ErrorCode errorCode);
+        void writeToStream(std::string &logline);
+        void closeStream();
     private:
         struct ModbusLoggerPrivate;
         ModbusLoggerPrivate *_impl;

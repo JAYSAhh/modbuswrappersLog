@@ -10,9 +10,8 @@ class MODBUSWRAPPERS_EXPORT ModbusLogWrapperFactory: public ModbusWrapperFactory
     explicit ModbusLogWrapperFactory(std::shared_ptr<ModbusWrapperFactory> &base_wrapper_factory);
     ~ModbusLogWrapperFactory();
 
-    std::shared_ptr<ModbusWrapper> createModbusWrapper(const std::string &ip,
-                                                 int port,
-                                                 ModbusLogger logger);
+    std::shared_ptr<ModbusWrapper> createModbusWrapper(std::string &ip,
+                                                 int port, std::string logPath);
 
     std::shared_ptr<ModbusWrapper> createModbusWrapper(const std::string &ip,
                                                  int port,

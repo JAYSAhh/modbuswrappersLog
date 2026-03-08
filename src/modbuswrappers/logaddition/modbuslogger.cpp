@@ -25,29 +25,29 @@ ModbusLogger::ModbusLogger(std::string fileName): _impl(new ModbusLoggerPrivate(
 }
 ModbusLogger::~ModbusLogger(){
     if (_impl->logstream.is_open()) {
-        CloseStream();
+        closeStream();
     }
 }
 
-void ModbusLogger::Log(DeviceState &deviceState, Operation operation,ErrorCode errorCode, std::string message) {
+void ModbusLogger::log(DeviceState &deviceState, Operation operation,ErrorCode errorCode, std::string message) {
     std::string command = "[" + _impl->getCurrentTime() + "] [" + _impl->getDeviceStateLabel(deviceState) + "] [" + _impl->getOperationLabel(operation) + "] [" + _impl->getErrorCodeLabel(errorCode) + "] " +  message;
     std::cout <<command<< std::endl;
-    WriteToStream(command);
+    writeToStream(command);
 }
-void ModbusLogger::Log(DeviceState &deviceState, Operation operation,ErrorCode errorCode) {
+void ModbusLogger::log(DeviceState &deviceState, Operation operation,ErrorCode errorCode) {
     std::string command =  "["+ _impl->getCurrentTime() + "] [" + _impl->getDeviceStateLabel(deviceState) + "] [" + _impl->getOperationLabel(operation) + "] [" + _impl->getErrorCodeLabel(errorCode) + "]";
     std::cout <<command<< std::endl;
-    WriteToStream(command);
+    writeToStream(command);
 }
 
-void ModbusLogger::WriteToStream(std::string &logline) {
+void ModbusLogger::writeToStream(std::string &logline) {
     if (_impl->logstream.is_open()) {
         _impl->logstream << logline<<std::endl;
         _impl->logstream.flush();
     }
 }
 
-void ModbusLogger::CloseStream() {
+void ModbusLogger::closeStream() {
     _impl->logstream.close();
 }
 

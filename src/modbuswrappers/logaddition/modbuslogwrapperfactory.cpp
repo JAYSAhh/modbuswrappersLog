@@ -19,11 +19,11 @@ ModbusLogWrapperFactory::~ModbusLogWrapperFactory()
   delete _impl;
 }
 
-std::shared_ptr<ModbusWrapper> createModbusWrapper(const std::string &ip,
+std::shared_ptr<ModbusWrapper> ModbusLogWrapperFactory::createModbusWrapper(std::string &ip,
                                              int port,
-                                             ModbusLogger logger){
-
-  std::shared_ptr<ModbusWrapper> result = std::make_shared<ModbusLogWrapper>(ip,port,logger);
+                                             std::string logPath){
+  auto baseWrapper = _impl->base_modbus_wrapper_factory->createBaseModbusWrapper(ip, port);
+  std::shared_ptr<ModbusWrapper> result = std::make_shared<ModbusLogWrapper>(baseWrapper, ip,port,logPath);
   return result;
 }
 

@@ -6,13 +6,15 @@
 
 #include <map>
 
+#include "modbuswrappers/modbuswrapperfactory.h"
+
 struct ModbusLogWrapper::ModbusLogWrapperPrivate{
   std::recursive_mutex mutex;
 
   std::string ip;
   int port = 4001;
   int modbus_id = 2;
-  ModbusLogger modbus_logger;
+  ModbusLogger modbus_logger = ModbusLogger("base.log");
 
   std::map<DeviceState, std::shared_ptr<ModbusWrapper>> states;
   std::shared_ptr<ModbusWrapper> current_state = nullptr;
@@ -29,12 +31,13 @@ struct ModbusLogWrapper::ModbusLogWrapperPrivate{
   ErrorCode disconnect();
   void checkConnection();
 
-  ModbusLogWrapperPrivate(const std::string& ip_, int port_, ModbusLogger& logger): ip(ip_), port(port_), modbus_logger(logger){};
+  ModbusLogWrapperPrivate(const std::string& ip_, int port_): ip(ip_), port(port_){};
 
 };
 
-ModbusLogWrapper::ModbusLogWrapper(const std::string &ip, int port, ModbusLogger &logger): ModbusWrapper(), _impl(new ModbusLogWrapperPrivate(ip, port, logger)) {
-  _impl->modbus_logger = logger;
+ModbusLogWrapper::ModbusLogWrapper(std::shared_ptr<ModbusWrapper> &baseWrapper ,std::string &ip, int port,std::string &logPath): ModbusWrapper(), _impl(new ModbusLogWrapperPrivate(ip, port)) {
+  _impl->modbus_logger = ModbusLogger(logPath);
+  _impl->current_state = baseWrapper;
 }
 
 ModbusLogWrapper::~ModbusLogWrapper() {
@@ -54,7 +57,7 @@ ErrorCode ModbusLogWrapper::changeAddress(const std::string &ip, int port, int m
       connect();
     }
   }
-  _impl->modbus_logger.Log(_impl->current_state_key, Operation::CHANGE_ADDRESS, result);
+  _impl->modbus_logger.log(_impl->current_state_key, Operation::CHANGE_ADDRESS, result);
   return result;
 }
 
@@ -65,7 +68,7 @@ std::string ModbusLogWrapper::getIP() {
   if (_impl->current_state != nullptr) {
     result = _impl->current_state->getIP();
   }
-  _impl->modbus_logger.Log(_impl->current_state_key, Operation::GET_IP, ErrorCode::SUCCESS , "IP IS " + result);
+  _impl->modbus_logger.log(_impl->current_state_key, Operation::GET_IP, ErrorCode::SUCCESS , "IP IS " + result);
   return result;
 }
 
@@ -76,7 +79,7 @@ int ModbusLogWrapper::getPort() {
   if (_impl->current_state != nullptr) {
     result = _impl->current_state->getPort();
   }
-  _impl->modbus_logger.Log(_impl->current_state_key, Operation::GET_PORT, ErrorCode::SUCCESS ,"port is " + std::to_string(result));
+  _impl->modbus_logger.log(_impl->current_state_key, Operation::GET_PORT, ErrorCode::SUCCESS ,"port is " + std::to_string(result));
   return result;
 }
 
@@ -87,7 +90,7 @@ int ModbusLogWrapper::getModbusID() {
   if (_impl->current_state != nullptr) {
     result = _impl->current_state->getModbusID();
   }
-  _impl->modbus_logger.Log(_impl->current_state_key, Operation::GET_MODBUS_ID, ErrorCode::SUCCESS ,"ModbusID is " + std::to_string(result));
+  _impl->modbus_logger.log(_impl->current_state_key, Operation::GET_MODBUS_ID, ErrorCode::SUCCESS ,"ModbusID is " + std::to_string(result));
 
   return result;
 }
@@ -95,14 +98,14 @@ int ModbusLogWrapper::getModbusID() {
 ErrorCode ModbusLogWrapper::connect() {
   std::unique_lock<std::recursive_mutex> lock(_impl->mutex);
   auto result = _impl->connect();
-  _impl->modbus_logger.Log(_impl->current_state_key, Operation::CONNECT, result);
+  _impl->modbus_logger.log(_impl->current_state_key, Operation::CONNECT, result);
   return result;
 }
 
 ErrorCode ModbusLogWrapper::disconnect() {
   std::unique_lock<std::recursive_mutex> lock(_impl->mutex);
   auto result = _impl->disconnect();;
-  _impl->modbus_logger.Log(_impl->current_state_key, Operation::DISCONNECT, result);
+  _impl->modbus_logger.log(_impl->current_state_key, Operation::DISCONNECT, result);
   return result;
 }
 
@@ -121,7 +124,7 @@ ErrorCode ModbusLogWrapper::isConnected(bool &is_connected, int modbus_id) {
   if (_impl->current_state != nullptr) {
     result = _impl->current_state->isConnected(is_connected, modbus_id);
   }
-  _impl->modbus_logger.Log(_impl->current_state_key, Operation::IS_CONNECTED, result);
+  _impl->modbus_logger.log(_impl->current_state_key, Operation::IS_CONNECTED, result);
 
   return result;
 }
@@ -136,7 +139,7 @@ ErrorCode ModbusLogWrapper::readHoldingRegister(int reg_num, uint16_t &value, in
   if (_impl->current_state != nullptr) {
     result = _impl->current_state->readHoldingRegister(reg_num, value, modbus_id, priority);
   }
-  _impl->modbus_logger.Log(_impl->current_state_key, Operation::READ_HOLDING_REGISTERS, result , "ReadHoldingRegister " + std::to_string(reg_num) + " " + std::to_string(value) + " " + std::to_string(modbus_id));
+  _impl->modbus_logger.log(_impl->current_state_key, Operation::READ_HOLDING_REGISTERS, result , "ReadHoldingRegister " + std::to_string(reg_num) + " " + std::to_string(value) + " " + std::to_string(modbus_id));
 
   return result;
 }
@@ -155,7 +158,7 @@ ErrorCode ModbusLogWrapper::readHoldingRegisters(int reg_num,
   }
   for (auto value : values)
   {
-    _impl->modbus_logger.Log(_impl->current_state_key, Operation::READ_HOLDING_REGISTERS, result , "ReadHoldingRegisters " + std::to_string(reg_num) + " " + std::to_string(value) + " " + std::to_string(modbus_id));
+    _impl->modbus_logger.log(_impl->current_state_key, Operation::READ_HOLDING_REGISTERS, result , "ReadHoldingRegisters " + std::to_string(reg_num) + " " + std::to_string(value) + " " + std::to_string(modbus_id));
   }
   return result;
 }
@@ -169,7 +172,7 @@ ErrorCode ModbusLogWrapper::writeHoldingRegister(int reg_num, uint16_t value, in
   if (_impl->current_state != nullptr) {
     result = _impl->current_state->writeHoldingRegister(reg_num, value, modbus_id, priority);
   }
-  _impl->modbus_logger.Log(_impl->current_state_key, Operation::READ_HOLDING_REGISTERS, result , "WriteHoldingRegister " + std::to_string(reg_num) + " " + std::to_string(value) + " " + std::to_string(modbus_id));
+  _impl->modbus_logger.log(_impl->current_state_key, Operation::READ_HOLDING_REGISTERS, result , "WriteHoldingRegister " + std::to_string(reg_num) + " " + std::to_string(value) + " " + std::to_string(modbus_id));
 
   return result;
 }
@@ -185,7 +188,7 @@ ErrorCode ModbusLogWrapper::writeHoldingRegisters(int reg_num, std::vector<uint1
   }
   for (auto single_value : value)
   {
-    _impl->modbus_logger.Log(_impl->current_state_key, Operation::READ_HOLDING_REGISTERS, result , "ReadHoldingRegisters " + std::to_string(reg_num) + " " + std::to_string(single_value) + " " + std::to_string(modbus_id));
+    _impl->modbus_logger.log(_impl->current_state_key, Operation::READ_HOLDING_REGISTERS, result , "ReadHoldingRegisters " + std::to_string(reg_num) + " " + std::to_string(single_value) + " " + std::to_string(modbus_id));
   }
   return result;
 }
@@ -199,7 +202,7 @@ ErrorCode ModbusLogWrapper::readInputRegister(int reg_num, uint16_t &value, int 
   if (_impl->current_state != nullptr) {
     result = _impl->current_state->readInputRegister(reg_num, value, modbus_id, priority);
   }
-  _impl->modbus_logger.Log(_impl->current_state_key, Operation::READ_HOLDING_REGISTERS, result , "ReadInputRegister " + std::to_string(reg_num) + " " + std::to_string(value) + " " + std::to_string(modbus_id));
+  _impl->modbus_logger.log(_impl->current_state_key, Operation::READ_HOLDING_REGISTERS, result , "ReadInputRegister " + std::to_string(reg_num) + " " + std::to_string(value) + " " + std::to_string(modbus_id));
 
   return result;
 }
@@ -221,7 +224,7 @@ ErrorCode ModbusLogWrapper::readInputRegisters(int reg_num,
   }
   for (auto value : values)
   {
-    _impl->modbus_logger.Log(_impl->current_state_key, Operation::READ_HOLDING_REGISTERS, result , "ReadHoldingRegisters " + std::to_string(reg_num) + " " + std::to_string(value) + " " + std::to_string(modbus_id));
+    _impl->modbus_logger.log(_impl->current_state_key, Operation::READ_HOLDING_REGISTERS, result , "ReadHoldingRegisters " + std::to_string(reg_num) + " " + std::to_string(value) + " " + std::to_string(modbus_id));
   }
   return result;
 }
@@ -231,10 +234,10 @@ void ModbusLogWrapper::checkConnectionStatusByResponse(modbus::ModbusResult resp
   std::cout << "RESPONSE MODBUS: " << response << " " << __func__ << std::endl;
   if (response == modbus::TCP_TIMEOUT_ERROR || response == modbus::NO_SOCKET_CONNECTION) {
     changeState(DISCONNECTED);
-    _impl->modbus_logger.Log(_impl->current_state_key, Operation::CHECK_CONNECTION_STATUS_BY_RESPONSE, SUCCESS);
+    _impl->modbus_logger.log(_impl->current_state_key, Operation::CHECK_CONNECTION_STATUS_BY_RESPONSE, SUCCESS);
   } else {
     changeState(CONNECTED);
-    _impl->modbus_logger.Log(_impl->current_state_key, Operation::CHECK_CONNECTION_STATUS_BY_RESPONSE, SUCCESS);
+    _impl->modbus_logger.log(_impl->current_state_key, Operation::CHECK_CONNECTION_STATUS_BY_RESPONSE, SUCCESS);
   }
 
 }
@@ -247,13 +250,13 @@ void ModbusLogWrapper::changeState(DeviceState state) {
       _impl->current_state_key = state;
       switch (state) {
         case CONNECTED:sendConnectionStatus(true);
-          _impl->modbus_logger.Log(state, Operation::CHANGE_STATE, SUCCESS,"CONNECTION STATUS SENT CONNECTED ");
+          _impl->modbus_logger.log(state, Operation::CHANGE_STATE, SUCCESS,"CONNECTION STATUS SENT CONNECTED ");
           break;
         case NOT_CONNECTED:sendConnectionStatus(false);
-          _impl->modbus_logger.Log(state, Operation::CHANGE_STATE, SUCCESS,"CONNECTION STATUS SENT NOT CONNECTED ");
+          _impl->modbus_logger.log(state, Operation::CHANGE_STATE, SUCCESS,"CONNECTION STATUS SENT NOT CONNECTED ");
           break;
         case DISCONNECTED:sendConnectionStatus(false);
-          _impl->modbus_logger.Log(state, Operation::CHANGE_STATE, SUCCESS,"CONNECTION STATUS SENT DISCONNECTED ");
+          _impl->modbus_logger.log(state, Operation::CHANGE_STATE, SUCCESS,"CONNECTION STATUS SENT DISCONNECTED ");
           break;
         case READ_ONLY:break;
         case OPEN:break;
@@ -274,7 +277,7 @@ ErrorCode ModbusLogWrapper::saveToEEPROM(int modbus_id,
   if (_impl->current_state != nullptr) {
     result = _impl->current_state->saveToEEPROM(modbus_id, priority);
   }
-  _impl->modbus_logger.Log(_impl->current_state_key, Operation::SAVE_TO_EEPROM, result);
+  _impl->modbus_logger.log(_impl->current_state_key, Operation::SAVE_TO_EEPROM, result);
   return result;
 }
 
@@ -298,10 +301,10 @@ void ModbusLogWrapper::addSlave(int modbus_id) {
   std::unique_lock<std::shared_mutex> lock(_impl->disabled_modbus_ids_mutex);
   if (!_impl->slave_enabled.count(modbus_id)) {
     _impl->slave_enabled.insert({modbus_id, {false, false}});
-    _impl->modbus_logger.Log(_impl->current_state_key, Operation::ADD_SLAVE, SUCCESS,"ADDED SLAVE, ID : " + std::to_string(modbus_id));
+    _impl->modbus_logger.log(_impl->current_state_key, Operation::ADD_SLAVE, SUCCESS,"ADDED SLAVE, ID : " + std::to_string(modbus_id));
     return;
   }
-  _impl->modbus_logger.Log(_impl->current_state_key, Operation::ADD_SLAVE, SUCCESS,"SLAVE ALREADY EXISTS, ID : " + std::to_string(modbus_id));
+  _impl->modbus_logger.log(_impl->current_state_key, Operation::ADD_SLAVE, SUCCESS,"SLAVE ALREADY EXISTS, ID : " + std::to_string(modbus_id));
 
 }
 
@@ -309,7 +312,7 @@ void ModbusLogWrapper::removeSlave(int modbus_id) {
   std::unique_lock<std::shared_mutex> lock(_impl->disabled_modbus_ids_mutex);
   if (_impl->slave_enabled.count(modbus_id)) {
     _impl->slave_enabled.erase(modbus_id);
-    _impl->modbus_logger.Log(_impl->current_state_key, Operation::REMOVE_SLAVE, SUCCESS,"REMOVED SLAVE, ID : " + std::to_string(modbus_id));
+    _impl->modbus_logger.log(_impl->current_state_key, Operation::REMOVE_SLAVE, SUCCESS,"REMOVED SLAVE, ID : " + std::to_string(modbus_id));
   }
 }
 
@@ -336,7 +339,7 @@ bool ModbusLogWrapper::isEnabled(int modbus_id) {
     result = slave_enabled[modbus_id].first;
   }
   if (result) {
-    _impl->modbus_logger.Log(_impl->current_state_key, Operation::IS_ENABLED, SUCCESS,"IS ENABLED : " + std::to_string(modbus_id));
+    _impl->modbus_logger.log(_impl->current_state_key, Operation::IS_ENABLED, SUCCESS,"IS ENABLED : " + std::to_string(modbus_id));
   }
 
   return result;
@@ -347,7 +350,7 @@ void ModbusLogWrapper::setIsOpened(bool is_opened, int modbus_id) {
   auto &slave_opened = _impl->slave_enabled;
   if (slave_opened.count(modbus_id)) {
     slave_opened[modbus_id].second = is_opened;
-    _impl->modbus_logger.Log(_impl->current_state_key, Operation::SET_IS_OPENED, SUCCESS);
+    _impl->modbus_logger.log(_impl->current_state_key, Operation::SET_IS_OPENED, SUCCESS);
   }
 
 
@@ -385,7 +388,7 @@ ErrorCode ModbusLogWrapper::ModbusLogWrapperPrivate::disconnect() {
     result = current_state->disconnect();
   }
 
-  modbus_logger.Log(current_state_key, DISCONNECT, result);
+  modbus_logger.log(current_state_key, DISCONNECT, result);
 
   return result;
 
